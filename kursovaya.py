@@ -9,31 +9,27 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import urllib.parse
 
-# Библиотеки для построения интерфейса (GUI)
+
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-# =====================================================================
 # КОНФИГУРАЦИЯ ПОЧТЫ
-# =====================================================================
 EMAIL_SETTINGS = {
 
     "smtp_server": "smtp.yandex.ru",
 
     "smtp_port": 465,
 
-    "sender_email": "Bezzy69@yandex.ru",  # Откуда отправляем
+    "sender_email": "Bezzy69@yandex.ru",
 
-    "sender_password": "bmcxaxdduyxiivyu",  # Пароль приложения
+    "sender_password": "bmcxaxdduyxiivyu",
 
-    "receiver_email": "zomaykruto@mail.ru"  # Куда придет письмо
+    "receiver_email": "zomaykruto@mail.ru"
 
 }
 
 
-# =====================================================================
 # КЛАСС БАЗЫ ДАННЫХ
-# =====================================================================
 class SteamPriceDatabase:
     def __init__(self, db_name="steam_monitor_base.db"):
         self.db_name = db_name
@@ -68,18 +64,14 @@ class SteamPriceDatabase:
             cursor.execute("PRAGMA foreign_keys = ON;")
             now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-
             cursor.execute("SELECT item_id FROM items WHERE market_hash_name = ?", (item_name,))
             row = cursor.fetchone()
 
             if row:
-
                 item_id = row[0]
             else:
-
                 cursor.execute("INSERT INTO items (market_hash_name) VALUES (?)", (item_name,))
                 item_id = cursor.lastrowid
-
 
             cursor.execute(
                 "INSERT INTO price_log (item_id, current_price, timestamp) VALUES (?, ?, ?)",
@@ -88,24 +80,22 @@ class SteamPriceDatabase:
             conn.commit()
 
 
-# =====================================================================
 # ГРАФИЧЕСКИЙ ИНТЕРФЕЙС И ЛОГИКА БОТА
-# =====================================================================
 class SteamBotGUI:
 
     def __init__(self, root):
         self.root = root
-        self.root.title("Steam Sniper Bot v1.5 (Steam Dark Edition)")
+        self.root.title("Steam Sniper Bot v2.0 (Steam Dark Edition)")
         self.root.geometry("500x640")
         self.root.resizable(False, False)
 
         # Цветовая палитра в стиле Steam
-        self.bg_dark = "#171a21"  # Основной глубокий фон
-        self.bg_panel = "#1b2838"  # Фон карточек и полей ввода
-        self.fg_light = "#c7d5e0"  # Основной текст
-        self.accent_blue = "#66c0f4"  # Голубой акцент для заголовков
-        self.btn_green = "#5c7e10"  # Приглушенный зеленый для старта
-        self.btn_red = "#a33a3a"  # Красный для остановки
+        self.bg_dark = "#171a21"
+        self.bg_panel = "#1b2838"
+        self.fg_light = "#c7d5e0"
+        self.accent_blue = "#66c0f4"
+        self.btn_green = "#5c7e10"
+        self.btn_red = "#a33a3a"
 
         self.root.configure(bg=self.bg_dark)
 
@@ -127,11 +117,13 @@ class SteamBotGUI:
         self.style = ttk.Style()
         self.style.theme_use("clam")
 
+        # Настройка фреймов
         self.style.configure("TFrame", background=self.bg_dark)
         self.style.configure("Card.TLabelframe", background=self.bg_dark, bordercolor="#2a475e", borderwidth=1)
         self.style.configure("Card.TLabelframe.Label", background=self.bg_dark, foreground=self.accent_blue,
                              font=("Helvetica", 10, "bold"))
 
+        # Настройка надписей
         self.style.configure("TLabel", background=self.bg_dark, foreground=self.fg_light, font=("Helvetica", 10))
         self.style.configure("Header.TLabel", background=self.bg_dark, foreground=self.accent_blue,
                              font=("Helvetica", 15, "bold"))
@@ -140,9 +132,11 @@ class SteamBotGUI:
         self.style.configure("Sub.TLabel", background=self.bg_dark, foreground="#66c0f4",
                              font=("Helvetica", 9, "italic"))
 
+        # Настройка полей ввода
         self.style.configure("TEntry", fieldbackground=self.bg_panel, foreground="#ffffff", bordercolor="#2a475e",
                              lightcolor="#2a475e", darkcolor="#2a475e")
 
+        # Настройка кнопок
         self.style.configure("Start.TButton", background=self.btn_green, foreground="#ffffff",
                              font=("Helvetica", 11, "bold"), borderwidth=0)
         self.style.map("Start.TButton", background=[("active", "#7a9b1c"), ("pressed", "#47620c")])
@@ -152,14 +146,14 @@ class SteamBotGUI:
         self.style.map("Stop.TButton", background=[("active", "#c24a4a"), ("pressed", "#822d2d")])
 
     def create_widgets(self):
-        """Создание элементов управления интерфейса."""
+
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(fill=tk.BOTH, expand=True)
 
         title_label = ttk.Label(main_frame, text="🛒 STEAM SNIPER BOT", style="Header.TLabel")
         title_label.pack(pady=(0, 5), anchor=tk.CENTER)
 
-        sub_title = ttk.Label(main_frame, text="Мониторинг цен в реальном времени", style="Sub.TLabel")
+        sub_title = ttk.Label(main_frame, text="Поиск сделок в реальном времени", style="Sub.TLabel")
         sub_title.pack(pady=(0, 20), anchor=tk.CENTER)
 
         # Панель параметров (Инпуты)
@@ -181,7 +175,7 @@ class SteamBotGUI:
         self.entry_target.insert(0, "1000.0")
         self.entry_target.pack(fill=tk.X, pady=(0, 5))
 
-        # Информация с ценой
+        # Информационное табло с ценой
         self.price_frame = ttk.Frame(main_frame, padding="10")
         self.price_frame.pack(fill=tk.X, pady=(0, 15))
         self.price_frame.configure(style="TFrame")
@@ -208,7 +202,7 @@ class SteamBotGUI:
         ttk.Label(main_frame, text="ЛОГ РАБОТЫ СИСТЕМЫ:", font=("Helvetica", 9, "bold"), foreground="#567287").pack(
             anchor=tk.W)
 
-        # Используем стандартный tk.Text
+
         self.log_box = tk.Text(
             main_frame,
             height=10,
@@ -234,7 +228,7 @@ class SteamBotGUI:
         self.log_box.see(tk.END)
 
     def send_email(self, item_name, current_price, target_price):
-        """Отправка красивого графического HTML-уведомления на почту."""
+        """Отправка красивого уведомления на почту."""
         self.log("[SMTP] Формирование графического HTML-уведомления...")
 
 
@@ -243,7 +237,7 @@ class SteamBotGUI:
         msg['To'] = EMAIL_SETTINGS['receiver_email']
         msg['Subject'] = f"🎯 Снайпер сработал: {item_name} подешевел!"
 
-
+        # Формируем прямую ссылку на предмет на Торговой Площадке Steam
         url_encoded_name = urllib.parse.quote(item_name)
         app_id = self.entry_appid.get().strip()
         item_link = f"https://steamcommunity.com/market/listings/{app_id}/{url_encoded_name}"
@@ -300,7 +294,7 @@ class SteamBotGUI:
         </body>
         </html>
         """
-      
+
         msg.attach(MIMEText(html_body, 'html', 'utf-8'))
 
         try:
@@ -363,6 +357,7 @@ class SteamBotGUI:
             price = self.fetch_price(app_id, item_name)
 
             if price is not None:
+                # Обновляем ценник на красивой панели
                 self.root.after(0, self.update_live_price_label, f"Текущая цена: {price:.2f} руб.")
                 self.log(f"Парсинг успешен. Цена: {price} руб.")
                 self.db.save_price(item_name, price)
